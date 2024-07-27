@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diseases  Prediction Bot</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: black;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #chatbox {
+            width: 100%;
+            max-width: 400px;
+            background-color: #333;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+        #title {
+            background-color: #4CAF50;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 20px;
+        }
+        #chat-content {
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            flex-grow: 1;
+        }
+        .message {
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        .user {
+            text-align: right;
+            background-color: #d4edda;
+            color: black;
+            align-self: flex-end;
+        }
+        .bot {
+            text-align: left;
+            background-color: #f8d7da;
+            color: black;
+            align-self: flex-start;
+        }
+        #input-area {
+            display: flex;
+            padding: 10px;
+        }
+        #user-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #444;
+            color: white;
+        }
+        button {
+            padding: 10px;
+            margin-left: 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div id="chatbox">
+        <div id="title">Diseases Prediction Bot</div>
+        <div id="chat-content"></div>
+        <div id="input-area">
+            <input type="text" id="user-input" placeholder="Type a message..." />
+            <button onclick="sendMessage()">Send</button>
+        </div>
+    </div>
+
+    <script>
+        async function sendMessage() {
+            const userInput = document.getElementById("user-input").value;
+            if (userInput.trim() === "") return;
+
+            displayMessage(userInput, "user");
+
+            try {
+                const response = await fetch("/chat", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ message: userInput })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayMessage(data.response, "bot");
+            } catch (error) {
+                console.error("Error:", error);
+            }
+        }
+
+        function displayMessage(message, sender) {
+            const chatContent = document.getElementById("chat-content");
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${sender}`;
+            messageDiv.textContent = message;
+            chatContent.appendChild(messageDiv);
+            chatContent.scrollTop = chatContent.scrollHeight; // Auto-scroll to the bottom
+            document.getElementById("user-input").value = "";
+        }
+    </script>
+</body>
+</html>
